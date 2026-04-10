@@ -1,0 +1,81 @@
+---
+- name: Bootstrap Kubernetes prerequisites
+  hosts: all
+  become: true
+  vars:
+    kubernetes_version: "1.29"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+
+    - name: Install base packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+          - docker.io
+        state: present
+
+    - name: Ensure Docker is enabled and running
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Disable swap immediately
+      command: swapoff -a
+      changed_when: false
+
+    - name: Disable swap in fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^(.*\sswap\s+.*)$'
+        replace: '# \1'
+
+    - name: Ensure keyrings directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes apt signing key
+      shell: |
+        set -euo pipefail
+        curl -fsSL "https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/Release.key" \
+          | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes apt repository
+      copy:
+        dest: /etc/apt/sources.list.d/kubernetes.list
+        content: |
+          deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/ /
+        mode: '0644'
+
+    - name: Install kubelet, kubeadm and kubectl
+      apt:
+        update_cache: true
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+
+    - name: Hold Kubernetes packages
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    - name: Ensure kubelet is enabled
+      service:
+        name: kubelet
+        enabled: true
