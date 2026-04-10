@@ -169,6 +169,14 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${LOCAL_RUNTIME}" = "kubernetes" ]; then
+            if [ -n "${KUBECONFIG:-}" ] && [ -f "${KUBECONFIG}" ]; then
+              mkdir -p .ci-kube
+              cp "${KUBECONFIG}" .ci-kube/config
+              sed -i 's#https://127.0.0.1:#https://host.docker.internal:#g' .ci-kube/config || true
+              sed -i 's#https://localhost:#https://host.docker.internal:#g' .ci-kube/config || true
+              export KUBECONFIG="$PWD/.ci-kube/config"
+            fi
+
             if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
               echo "Kubernetes API not reachable from Jenkins. Skipping Deploy Application stage."
               exit 0
@@ -206,6 +214,14 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${LOCAL_RUNTIME}" = "kubernetes" ]; then
+            if [ -n "${KUBECONFIG:-}" ] && [ -f "${KUBECONFIG}" ]; then
+              mkdir -p .ci-kube
+              cp "${KUBECONFIG}" .ci-kube/config
+              sed -i 's#https://127.0.0.1:#https://host.docker.internal:#g' .ci-kube/config || true
+              sed -i 's#https://localhost:#https://host.docker.internal:#g' .ci-kube/config || true
+              export KUBECONFIG="$PWD/.ci-kube/config"
+            fi
+
             if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
               echo "Kubernetes API not reachable from Jenkins. Skipping Deploy Prometheus + Grafana stage."
               exit 0
@@ -245,6 +261,14 @@ pipeline {
       steps {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
+
+          if [ -n "${KUBECONFIG:-}" ] && [ -f "${KUBECONFIG}" ]; then
+            mkdir -p .ci-kube
+            cp "${KUBECONFIG}" .ci-kube/config
+            sed -i 's#https://127.0.0.1:#https://host.docker.internal:#g' .ci-kube/config || true
+            sed -i 's#https://localhost:#https://host.docker.internal:#g' .ci-kube/config || true
+            export KUBECONFIG="$PWD/.ci-kube/config"
+          fi
 
           if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
             echo "Kubernetes API not reachable from Jenkins. Skipping Self-Healing Validation stage."

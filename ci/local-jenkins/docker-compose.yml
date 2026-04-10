@@ -6,19 +6,17 @@ services:
       context: .
     container_name: local-jenkins
     restart: unless-stopped
-    ports:
-      - "8081:8080"
-      - "50000:50000"
+    network_mode: host
     volumes:
       - jenkins_home:/var/jenkins_home
       - ../../:/workspace
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOME}/.kube:/var/jenkins_home/.kube:ro
+      - ${HOME}/.minikube:${HOME}/.minikube:ro
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - JENKINS_OPTS=--httpPort=8081
       - KUBECONFIG=/var/jenkins_home/.kube/config
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 volumes:
   jenkins_home:
