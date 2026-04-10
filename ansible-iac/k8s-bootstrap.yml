@@ -1,7 +1,7 @@
 ---
 - name: Bootstrap Kubernetes prerequisites
   hosts: all
-  become: true
+  become: "{{ bootstrap_become | default(true) | bool }}"
   vars:
     kubernetes_version: "1.29"
 

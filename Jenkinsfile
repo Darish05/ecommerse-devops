@@ -133,7 +133,7 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${IAC_MODE}" = "validate-only" ]; then
-            ansible-playbook -i "$ANSIBLE_INVENTORY" "$ANSIBLE_PLAYBOOK" --check
+            ansible-playbook -i "$ANSIBLE_INVENTORY" "$ANSIBLE_PLAYBOOK" --check -e bootstrap_become=false
           else
             ansible-playbook -i "$ANSIBLE_INVENTORY" "$ANSIBLE_PLAYBOOK"
           fi
