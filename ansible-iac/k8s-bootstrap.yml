@@ -9,6 +9,7 @@
     - name: Update apt cache
       apt:
         update_cache: true
+      when: not ansible_check_mode
 
     - name: Install base packages
       apt:
@@ -19,28 +20,33 @@
           - gpg
           - docker.io
         state: present
+      when: not ansible_check_mode
 
     - name: Ensure Docker is enabled and running
       service:
         name: docker
         state: started
         enabled: true
+      when: not ansible_check_mode
 
     - name: Disable swap immediately
       command: swapoff -a
       changed_when: false
+      when: not ansible_check_mode
 
     - name: Disable swap in fstab
       replace:
         path: /etc/fstab
         regexp: '^(.*\sswap\s+.*)$'
         replace: '# \1'
+      when: not ansible_check_mode
 
     - name: Ensure keyrings directory exists
       file:
         path: /etc/apt/keyrings
         state: directory
         mode: '0755'
+      when: not ansible_check_mode
 
     - name: Add Kubernetes apt signing key
       shell: |
@@ -49,6 +55,7 @@
           | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
       args:
         creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      when: not ansible_check_mode
 
     - name: Add Kubernetes apt repository
       copy:
@@ -56,6 +63,7 @@
         content: |
           deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/ /
         mode: '0644'
+      when: not ansible_check_mode
 
     - name: Install kubelet, kubeadm and kubectl
       apt:
@@ -65,6 +73,7 @@
           - kubeadm
           - kubectl
         state: present
+      when: not ansible_check_mode
 
     - name: Hold Kubernetes packages
       dpkg_selections:
@@ -74,8 +83,10 @@
         - kubelet
         - kubeadm
         - kubectl
+      when: not ansible_check_mode
 
     - name: Ensure kubelet is enabled
       service:
         name: kubelet
         enabled: true
+      when: not ansible_check_mode
