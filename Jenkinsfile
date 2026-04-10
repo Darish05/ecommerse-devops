@@ -12,14 +12,14 @@ pipeline {
   }
 
   parameters {
-    choice(name: 'LOCAL_RUNTIME', choices: ['kubernetes', 'docker-compose'], description: 'Run locally on Kubernetes (kubectl) or Docker Compose')
+    choice(name: 'LOCAL_RUNTIME', choices: ['docker-compose', 'kubernetes'], description: 'Run locally on Docker Compose or Kubernetes (kubectl)')
     booleanParam(name: 'ENABLE_IAC', defaultValue: true, description: 'Run Terraform + Ansible stages for IaC/orchestration objective')
     choice(name: 'IAC_MODE', choices: ['validate-only', 'provision-aws'], description: 'Validate IaC only (local-safe) or provision on AWS')
     choice(name: 'TF_ACTION', choices: ['plan', 'apply', 'destroy'], description: 'Terraform action (used when IAC_MODE=provision-aws)')
     booleanParam(name: 'RUN_ANSIBLE_BOOTSTRAP', defaultValue: true, description: 'Run Ansible bootstrap (check mode for validate-only)')
     booleanParam(name: 'DEPLOY_APP', defaultValue: true, description: 'Deploy application services')
     booleanParam(name: 'DEPLOY_MONITORING', defaultValue: true, description: 'Deploy Prometheus + Grafana monitoring stack')
-    booleanParam(name: 'RUN_SELF_HEAL_TEST', defaultValue: true, description: 'Delete one pod and verify automatic recovery')
+    booleanParam(name: 'RUN_SELF_HEAL_TEST', defaultValue: false, description: 'Delete one pod and verify automatic recovery (Kubernetes only)')
   }
 
   environment {
@@ -169,6 +169,11 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${LOCAL_RUNTIME}" = "kubernetes" ]; then
+            if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
+              echo "Kubernetes API not reachable from Jenkins. Skipping Deploy Application stage."
+              exit 0
+            fi
+
             kubectl apply -f "$K8S_BASE_MANIFEST"
             if [ -d "$K8S_AUTOSCALING_DIR" ]; then
               kubectl apply -f "$K8S_AUTOSCALING_DIR"
@@ -201,6 +206,11 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${LOCAL_RUNTIME}" = "kubernetes" ]; then
+            if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
+              echo "Kubernetes API not reachable from Jenkins. Skipping Deploy Prometheus + Grafana stage."
+              exit 0
+            fi
+
             if [ -d "$K8S_MONITORING_DIR" ]; then
               kubectl apply -f "$K8S_MONITORING_DIR"
             fi
@@ -235,6 +245,11 @@ pipeline {
       steps {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
+
+          if ! kubectl version --request-timeout=5s >/dev/null 2>&1; then
+            echo "Kubernetes API not reachable from Jenkins. Skipping Self-Healing Validation stage."
+            exit 0
+          fi
 
           POD_NAME="$(kubectl get pods -n "$K8S_NS" -l name=front-end -o jsonpath='{.items[0].metadata.name}')"
           test -n "$POD_NAME"
