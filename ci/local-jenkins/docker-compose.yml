@@ -13,8 +13,12 @@ services:
       - jenkins_home:/var/jenkins_home
       - ../../:/workspace
       - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.kube:/var/jenkins_home/.kube:ro
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - KUBECONFIG=/var/jenkins_home/.kube/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   jenkins_home:
