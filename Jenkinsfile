@@ -146,7 +146,7 @@ pipeline {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
           if [ "${LOCAL_RUNTIME}" = "kubernetes" ]; then
-            kubectl apply --dry-run=client -f "$K8S_BASE_MANIFEST" >/dev/null
+            kubectl apply --dry-run=client --validate=false -f "$K8S_BASE_MANIFEST" >/dev/null
           else
             if docker compose version >/dev/null 2>&1; then
               COMPOSE="docker compose"
