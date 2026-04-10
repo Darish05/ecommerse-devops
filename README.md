@@ -41,6 +41,25 @@ Install and verify:
 - (Optional) Minikube + kubectl for Kubernetes runtime
 - (Optional) Terraform and Ansible for IaC runs
 
+Common install commands (Ubuntu/Debian):
+
+```bash
+sudo apt update
+sudo apt install -y git curl
+
+# Docker Engine + Docker Compose plugin
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker "$USER"
+
+# Optional tools
+sudo snap install kubectl --classic
+sudo snap install minikube --classic
+sudo snap install terraform --classic
+sudo apt install -y ansible
+```
+
+Then reopen your terminal (or log out/in) so Docker group permissions apply.
+
 Quick checks:
 
 ```bash
@@ -59,7 +78,7 @@ ansible-playbook --version || true
 From repo root:
 
 ```bash
-cd /home/rhemi/Dar_proj/microservices-demo
+cd microservices-demo
 ```
 
 ### 3.1 Clean old state (recommended)
@@ -81,7 +100,7 @@ docker-compose -f deploy/docker-compose/docker-compose.yml -f deploy/docker-comp
 Sometimes importer starts before Grafana is ready. Re-run importer explicitly:
 
 ```bash
-docker-compose -f /home/rhemi/Dar_proj/microservices-demo/deploy/docker-compose/docker-compose.yml -f /home/rhemi/Dar_proj/microservices-demo/deploy/docker-compose/docker-compose.monitoring.yml run --rm importer
+docker-compose -f deploy/docker-compose/docker-compose.yml -f deploy/docker-compose/docker-compose.monitoring.yml run --rm importer
 ```
 
 ### 3.4 Verify stack status
@@ -319,7 +338,7 @@ docker-compose -f deploy/docker-compose/docker-compose.yml -f deploy/docker-comp
 Re-run importer:
 
 ```bash
-docker-compose -f /home/rhemi/Dar_proj/microservices-demo/deploy/docker-compose/docker-compose.yml -f /home/rhemi/Dar_proj/microservices-demo/deploy/docker-compose/docker-compose.monitoring.yml run --rm importer
+docker-compose -f deploy/docker-compose/docker-compose.yml -f deploy/docker-compose/docker-compose.monitoring.yml run --rm importer
 ```
 
 ### Prometheus UI empty
