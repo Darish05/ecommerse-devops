@@ -46,6 +46,10 @@ services:
     image: weaveworksdemos/carts:0.4.8
     hostname: carts
     restart: always
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
     cap_drop:
       - all
     cap_add:
@@ -54,7 +58,7 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid
     environment:
-      - JAVA_OPTS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
   carts-db:
     image: mongo:3.4
     hostname: carts-db
@@ -72,6 +76,10 @@ services:
     image: weaveworksdemos/orders:0.4.7
     hostname: orders
     restart: always
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
     cap_drop:
       - all
     cap_add:
@@ -80,7 +88,7 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid
     environment:
-      - JAVA_OPTS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
   orders-db:
     image: mongo:3.4
     hostname: orders-db
@@ -98,6 +106,10 @@ services:
     image: weaveworksdemos/shipping:0.4.8
     hostname: shipping
     restart: always
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
     cap_drop:
       - all
     cap_add:
@@ -106,13 +118,17 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid
     environment:
-      - JAVA_OPTS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
   queue-master:
     image: weaveworksdemos/queue-master:0.3.1
     hostname: queue-master
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: always
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 4096
     cap_drop:
       - all
     cap_add:

@@ -25,7 +25,7 @@ spec:
       - name: carts
         image: weaveworksdemos/carts:0.4.8
         env:
-         - name: JAVA_OPTS
+         - name: JAVA_TOOL_OPTIONS
            value: -Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
         resources:
           limits:
@@ -339,7 +339,7 @@ spec:
       - name: orders
         image: weaveworksdemos/orders:0.4.7
         env:
-         - name: JAVA_OPTS
+         - name: JAVA_TOOL_OPTIONS
            value: -Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
         resources:
           limits:
@@ -534,8 +534,8 @@ spec:
       - name: queue-master
         image: weaveworksdemos/queue-master:0.3.1
         env:
-         - name: JAVA_OPTS
-           value: -Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
+         - name: JAVA_TOOL_OPTIONS
+           value: -Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom
         resources:
           limits:
             cpu: 300m
@@ -708,7 +708,7 @@ spec:
         env:
          - name: ZIPKIN
            value: zipkin.jaeger.svc.cluster.local
-         - name: JAVA_OPTS
+         - name: JAVA_TOOL_OPTIONS
            value: -Xms64m -Xmx128m -XX:+UseG1GC -Djava.security.egd=file:/dev/urandom -Dspring.zipkin.enabled=false
         resources:
           limits:
