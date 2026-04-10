@@ -5,6 +5,7 @@ services:
     build:
       context: .
     container_name: local-jenkins
+    user: "0:0"
     restart: unless-stopped
     network_mode: host
     volumes:
