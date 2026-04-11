@@ -68,6 +68,7 @@ pipeline {
           fi
         '''
       }
+    booleanParam(name: 'RUN_ANSIBLE_ONLY', defaultValue: false, description: 'Run only the Ansible bootstrap stage (skips Terraform)')
     }
     booleanParam(name: 'RUN_ANSIBLE_ONLY', defaultValue: false, description: 'Run only the Ansible bootstrap stage (skips Terraform)')
 
