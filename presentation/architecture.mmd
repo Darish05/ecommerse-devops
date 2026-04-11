@@ -1,0 +1,21 @@
+flowchart LR
+    subgraph App
+        FE[Front-end] -->|HTTP| API[API / Gateway]
+        API --> Catalogue[Catalogue Service]
+        API --> Carts[Carts Service]
+        API --> Orders[Orders Service]
+    end
+    Catalogue --> CatalogueDB[(Catalogue DB)]
+    Carts --> CartsDB[(Carts DB)]
+    Orders --> OrdersDB[(Orders DB)]
+
+    subgraph Infra
+        Jenkins[Jenkins CI]
+        Prometheus[Prometheus]
+        Grafana[Grafana]
+        Alert[Alertmanager]
+    end
+
+    Jenkins -->|builds| App
+    Prometheus --> Grafana
+    Prometheus --> Alert

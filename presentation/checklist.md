@@ -1,0 +1,5 @@
+- **Slides:** Review `Slides.md` and tune talking points.
+- **Demo environment:** Ensure Docker Desktop is running.
+- **Ports:** Confirm required ports are free (80, 443, 9090, 3000, etc.).
+- **Artifacts:** Open `architecture.mmd` and `demo.md` for reference during the talk.
+- **Backup:** Have screenshots ready if live demo connectivity fails.

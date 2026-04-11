@@ -7,7 +7,9 @@ services:
     container_name: local-jenkins
     user: "0:0"
     restart: unless-stopped
-    network_mode: host
+    # Use port mapping on Windows instead of host network mode
+    ports:
+      - "8081:8081"
     volumes:
       - jenkins_home:/var/jenkins_home
       - ../../:/workspace

@@ -1,0 +1,1 @@
+.status as $s | {status:$s, total:(.data.activeTargets|length), up:([.data.activeTargets[]?.health]|map(select(.=="up"))|length), targets:(.data.activeTargets|map({scrapePool:.scrapePool, health:.health, address:.labels.__address, job:.labels.job, lastScrape:.lastScrape, lastError:.lastError}))}
