@@ -244,19 +244,12 @@ pipeline {
               COMPOSE="docker-compose"
             fi
 
-            # Detect Docker server OS; if running on Windows, avoid mounting host root (node-exporter)
-            DOCKER_SERVER_OS=$($COMPOSE version >/dev/null 2>&1 && docker version --format '{{.Server.Os}}' 2>/dev/null || true)
-            if [ -z "$DOCKER_SERVER_OS" ]; then
-              DOCKER_SERVER_OS=$(docker info --format '{{.OSType}}' 2>/dev/null || true)
-            fi
-
-            if [ "${DOCKER_SERVER_OS,,}" = "windows" ]; then
-              echo "Docker server OS detected as Windows — starting monitoring without node-exporter"
-              # start core monitoring services (skip nodeexporter which requires / mount semantics)
-              $COMPOSE -f "$COMPOSE_BASE_FILE" -f "$COMPOSE_MONITORING_FILE" up -d prometheus alertmanager grafana importer || true
-            else
-              $COMPOSE -f "$COMPOSE_BASE_FILE" -f "$COMPOSE_MONITORING_FILE" up -d
-            fi
+            # Start core monitoring services only (skip node-exporter by default).
+            # On some hosts (Windows / Docker Desktop) mounting host root for node-exporter
+            # fails with "not a shared or slave mount". To keep the pipeline portable,
+            # start Prometheus, Alertmanager, Grafana and the importer only.
+            echo "Starting monitoring (prometheus, alertmanager, grafana, importer) — node-exporter skipped"
+            $COMPOSE -f "$COMPOSE_BASE_FILE" -f "$COMPOSE_MONITORING_FILE" up -d prometheus alertmanager grafana importer || true
 
             $COMPOSE -f "$COMPOSE_BASE_FILE" -f "$COMPOSE_MONITORING_FILE" ps
           fi
