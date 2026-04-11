@@ -18,17 +18,21 @@ services:
           - 9090:9090
         links:
           - alertmanager:alertmanager
-    nodeexporter:
+    # nodeexporter is disabled by default in this repository because some Docker
+    # hosts (Windows / Docker Desktop) do not support the rslave mount propagation
+    # used by node-exporter. To enable on a compatible host, rename this service
+    # back to `nodeexporter` and adjust the volume mount as required.
+    nodeexporter_disabled:
         image: quay.io/prometheus/node-exporter:v1.1.2
-        container_name: nodeexporter
-        volumes:
-          - '/:/host:ro,rslave'
-        pid: host
+        container_name: nodeexporter_disabled
+        # volumes:
+        #  - '/:/host:ro,rslave'
+        # pid: host
         command:
           - '--path.rootfs=/host'
         restart: unless-stopped
-        ports:
-          - 9100:9100
+        # ports:
+        #  - 9100:9100
     alertmanager:
         image: prom/alertmanager
         ports:
