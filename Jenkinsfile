@@ -68,11 +68,10 @@ pipeline {
           fi
         '''
       }
-    booleanParam(name: 'RUN_ANSIBLE_ONLY', defaultValue: false, description: 'Run only the Ansible bootstrap stage (skips Terraform)')
-    }
-    booleanParam(name: 'RUN_ANSIBLE_ONLY', defaultValue: false, description: 'Run only the Ansible bootstrap stage (skips Terraform)')
 
-    stage('IaC: Terraform Init + Validate') {
+      }
+
+      stage('IaC: Terraform Init + Validate') {
       when {
         expression { params.ENABLE_IAC }
       }
