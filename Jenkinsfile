@@ -69,6 +69,7 @@ pipeline {
         '''
       }
     }
+    booleanParam(name: 'RUN_ANSIBLE_ONLY', defaultValue: false, description: 'Run only the Ansible bootstrap stage (skips Terraform)')
 
     stage('IaC: Terraform Init + Validate') {
       when {
@@ -120,18 +121,27 @@ pipeline {
 
     stage('IaC: Ansible Bootstrap') {
       when {
-        allOf {
-          expression { params.ENABLE_IAC }
-          expression { params.RUN_ANSIBLE_BOOTSTRAP }
-          anyOf {
-            expression { params.IAC_MODE == 'validate-only' }
-            expression { params.TF_ACTION == 'apply' }
+        anyOf {
+          expression { params.RUN_ANSIBLE_ONLY }
+          allOf {
+            expression { params.ENABLE_IAC }
+            expression { params.RUN_ANSIBLE_BOOTSTRAP }
+            anyOf {
+              expression { params.IAC_MODE == 'validate-only' }
+              expression { params.TF_ACTION == 'apply' }
+            }
           }
         }
       }
       steps {
         sh '''#!/usr/bin/env bash
           set -euo pipefail
+
+          if [ "${RUN_ANSIBLE_ONLY}" = "true" ]; then
+            ansible-playbook -i "$ANSIBLE_INVENTORY" "$ANSIBLE_PLAYBOOK" -e bootstrap_become=true
+            exit 0
+          fi
+
           if [ "${IAC_MODE}" = "validate-only" ]; then
             ansible-playbook -i "$ANSIBLE_INVENTORY" "$ANSIBLE_PLAYBOOK" --check -e bootstrap_become=false
           else
